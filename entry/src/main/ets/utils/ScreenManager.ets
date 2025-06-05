@@ -1,43 +1,33 @@
-import { media } from "@kit.MediaKit";
-import { mediaquery } from "@kit.ArkUI";
-import { BreakPointConstants } from "../constants";
-import { BreakPointEnum } from "./BreakPointType";
+import { display, window } from '@kit.ArkUI';
+import { BreakPointConstants } from '../constants';
+import { BreakPointEnum } from './BreakPointType';
 
 export class ScreenManager {
-  xsListener: mediaquery.MediaQueryListener | null = null
-  smListener: mediaquery.MediaQueryListener | null = null
-  mdListener: mediaquery.MediaQueryListener | null = null
-  lgListener: mediaquery.MediaQueryListener | null = null
+  ctx?: Context
 
-  init() {
-    this.xsListener = mediaquery.matchMediaSync("(0vp<width<320vp)")
-    this.smListener = mediaquery.matchMediaSync("(320vp<=width<520vp)")
-    this.mdListener = mediaquery.matchMediaSync("(520vp<=width<840vp)")
-    this.lgListener = mediaquery.matchMediaSync("(840vp<=width)")
-
-    this.xsListener.on("change", (res) => {
-      if (res) {
-        this.setBreakPoint(BreakPointEnum.XS)
-      }
+  async init() {
+    this.judgeScreen(px2vp(display.getDefaultDisplaySync().width))
+    const win = await window.getLastWindow(this.ctx || getContext())
+    win.on("windowSizeChange", (size) => {
+      this.judgeScreen(px2vp(size.width))
     })
 
-    this.smListener.on("change", (res) => {
-      if (res) {
-        this.setBreakPoint(BreakPointEnum.SM)
-      }
-    })
+  }
 
-    this.mdListener.on("change", (res) => {
-      if (res) {
-        this.setBreakPoint(BreakPointEnum.MD)
-      }
-    })
-
-    this.lgListener.on("change", (res) => {
-      if (res) {
-        this.setBreakPoint(BreakPointEnum.LG)
-      }
-    })
+  // 判断屏幕宽度
+  judgeScreen(val: number) {
+    if (val < 320) {
+      this.setBreakPoint(BreakPointEnum.XS)
+    }
+    else if (val < 600) {
+      this.setBreakPoint(BreakPointEnum.SM)
+    }
+    else if (val < 840) {
+      this.setBreakPoint(BreakPointEnum.MD)
+    }
+    else {
+      this.setBreakPoint(BreakPointEnum.LG)
+    }
   }
 
   setBreakPoint(breakPoint: BreakPointEnum) {
@@ -45,15 +35,7 @@ export class ScreenManager {
   }
 
   off() {
-    this.xsListener?.off("change")
-    this.smListener?.off("change")
-    this.mdListener?.off("change")
-    this.lgListener?.off("change")
-    // 内存释放
-    this.xsListener = null
-    this.smListener = null
-    this.mdListener = null
-    this.lgListener = null
+
   }
 }
 
