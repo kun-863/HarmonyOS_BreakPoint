@@ -34,8 +34,9 @@ export class ScreenManager {
     AppStorage.setOrCreate(BreakPointConstants.BREAK_POINT_KEY, breakPoint)
   }
 
-  off() {
-
+  async off() {
+    const win = await window.getLastWindow(this.ctx || getContext())
+    win.off("windowSizeChange")
   }
 }
 
